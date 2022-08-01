@@ -9,3 +9,48 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Account{
+  id                String      @id @default(uuid())
+  userID            String
+  type              String
+  provider          String
+  providerAccountID String
+  refresh_token     String?     @db.Text
+  access_token      String?     @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?     @db.Text
+  session_state     String?
+
+  user              User        @relation(fields: [userID], references:[id], onDelete: Cascade)
+  @@unique([provider, providerAccountID])
+}
+
+model User {
+  id        String      @id @default(uuid())
+  username  String      
+  todo      Todo[]  
+  category  Category[]
+}
+
+model Todo {
+  id        String      @id @default(uuid())
+  todoName  String  
+  dueDate   DateTime?
+  completed Boolean    @default(false) 
+  user      User       @relation(fields: [userID], references: [id])
+  userID    String
+  category  Category?  @relation(fields: [catID], references: [id])
+  catID     String?      
+}
+
+model Category{
+  id        String      @id @default(uuid())
+  name      String
+  user      User      @relation(fields: [userID], references: [id])
+  userID    String
+  todo      Todo[]
+}
+
